@@ -61,7 +61,8 @@ jobs:
             apt -y install git crossbuild-essential-arm64 make flex bison bc \
                 libelf-dev libssl-dev libssl-dev:arm64 dpkg-dev \
                 debhelper-compat kmod python3 rsync coreutils
-            scripts/build-linux-deb.sh kernel-configs/systemd-boot.config
+            scripts/build-linux-deb.sh kernel-configs/docker.config \
+                kernel-configs/systemd-boot.config
 
       - name: Upload results to fileserver
         env:
