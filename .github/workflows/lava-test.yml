@@ -26,15 +26,16 @@ jobs:
     outputs:
       boards_json: ${{ steps.filter.outputs.boards_json }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Filter boards
         id: filter
         env:
           BOARDS_JSON: ${{ inputs.boards_json }}
         run: |
-          # only one board in hyd lab, not passing health checks and timing out
-          # filter out device_type: qcs8300-ride / storage: ufs
-          echo "$BOARDS_JSON" | jq -c 'map(select(.device_type != "qcs8300-ride" or .storage != "ufs"))' > boards.json
-          echo "boards_json=$(cat boards.json)" >> $GITHUB_OUTPUT
+          ci/lava/filter_boards.py >boards.json
+          echo "boards_json=$(cat boards.json)" >>$GITHUB_OUTPUT
 
   submit-job:
     needs: filter-boards
@@ -61,16 +62,7 @@ jobs:
           # used for flash settings to select the flat image directory
           FLASH_DEVICE_TYPE="${{ matrix.device_type }}"
           # used in LAVA API calls to select the hardware to test with
-          LAVA_DEVICE_TYPE="$FLASH_DEVICE_TYPE"
-          # map board names to names used by lava.infra.foundries.io
-          case "$FLASH_DEVICE_TYPE" in
-            lemans-evk)
-              LAVA_DEVICE_TYPE="iq-9075-evk"
-            ;;
-            qcs9100-ride-r3)
-              LAVA_DEVICE_TYPE="qcs9100-ride-sx"
-            ;;
-          esac
+          LAVA_DEVICE_TYPE="${{ matrix.lava_device_type }}"
           STORAGE="${{ matrix.storage }}"
           BUILD_DOWNLOAD_URL="$BUILD_URL"
           BUILD_FILE_NAME="flash-${STORAGE}.tar.gz"
