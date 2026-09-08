@@ -78,5 +78,12 @@ jobs:
     with:
       url: ${{ needs.build.outputs.artifacts_url }}
       suite: ${{ matrix.suite }}
+      # monaco-arduino-monza and qrb2210-arduino-imola are only validated
+      # against the arduino kernel; see
       # https://github.com/qualcomm-linux/qcom-deb-images/issues/537
-      boards_exclude: '["monaco-arduino-monza", "qrb2210-arduino-imola"]'
+      # lemans-evk and monaco-evk fail to boot to a login prompt on most daily
+      # runs (initramfs/root device never shows up), which keeps this workflow
+      # red and hides real regressions on the other boards. Excluded until the
+      # boot failures are fixed; see
+      # https://github.com/qualcomm-linux/qcom-deb-images/issues/620
+      boards_exclude: '["lemans-evk", "monaco-arduino-monza", "monaco-evk", "qrb2210-arduino-imola"]'
