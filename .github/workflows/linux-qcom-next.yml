@@ -30,12 +30,15 @@ jobs:
       github.ref == 'refs/heads/main')
     uses: ./.github/workflows/linux.yml
     permissions:
-      # skip_image_build below leaves the kernel deb build as the only job that
-      # runs, and it just checks out the repository
+      checks: write
       contents: read
+      packages: read
+      pull-requests: write
     with:
       kernel_name: qcom-next
       build_linux_deb_extra_args: '--qcom-next --ref qcom-next-7.2-rc7-20260821 prune.config qcom.config'
       # stop after publishing the debs to EFS; the "Build" workflow
       # picks them up and builds and tests the images on every suite
       skip_image_build: true
+    secrets:
+      LAVATOKEN: ${{ secrets.LAVATOKEN }}
